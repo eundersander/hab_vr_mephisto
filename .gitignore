@@ -1,1 +1,6 @@
-task/server_files/habitat_vr/data/
+# We don't track data files with git because some of the data files are very large
+/task/server_files/habitat_vr_app/data/
+
+# Habitat-sim JS build outputs
+task/server_files/habitat_vr_app/lib/habitat-sim-js/hsim_bindings.js
+task/server_files/habitat_vr_app/lib/habitat-sim-js/hsim_bindings.wasm
