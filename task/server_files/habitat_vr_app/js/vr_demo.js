@@ -91,7 +91,7 @@ class VRDemo {
 
   initSimAgentSensors() {
     this.config = new Module.SimulatorConfiguration();
-    this.config.scene_id = "data/stages/clothing_store_77_objects.glb";
+    this.config.scene_id = "data/stages/clothing_store_optimized.glb";
     this.config.enablePhysics = false;
     this.config.sceneLightSetup = ""; // this empty string means "use lighting"
     this.config.overrideSceneLightDefaults = true; // always set this to true

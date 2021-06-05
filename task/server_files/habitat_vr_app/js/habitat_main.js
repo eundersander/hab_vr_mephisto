@@ -62,11 +62,9 @@ checkSupport();
 
 
 function doPreloading() {
-  const scene = "data/stages/clothing_store_77_objects.glb";
+  const scene = "data/stages/clothing_store_optimized.glb";
   let resolvedScene = preload(scene);
   console.log("resolvedScene = " + resolvedScene);
-
-  preload("data/default.physics_config.json");
 
   const fileNoExtension = scene.substr(0, scene.lastIndexOf("."));
 
