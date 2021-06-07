@@ -7,14 +7,6 @@ const BUTTON_ID = "vr_button";
 const VIEW_SENSORS = ["left_eye", "right_eye"];
 const pointToArray = p => [p.x, p.y, p.z, p.w];
 
-///////////
-// INPUT //
-///////////
-//const REPEAT_TIMEOUT = 500;
-//const LEFT_RIGHT_AXIS = 2;
-//const FWD_AXIS = 3;
-//const VIEW_YAW_STEP = Math.PI * 0.1;
-
 class HandRecord {
   objIds = [];
   prevButtonStates = [false, false];
@@ -44,52 +36,42 @@ class VRDemo {
   skipFrames = 60;
   currentFramesSkipped = 0;
 
-  constructor(canvasId = "canvas", fpsId = "fps") {
-    this.canvasElement = document.getElementById(canvasId);
-    this.fpsElement = document.getElementById(fpsId);
+  constructor() {
+    this.fpsElement = document.getElementById("fps");
   }
 
   static preloadFiles(preloadFunc) {
-    // For dataUrlBase, if you specify a relative path here like "data", it is relative
-    // to the bindings_js folder where index.js is served. You can alternately specify a
-    // full URL base such as https://www.mywebsite.com/data". For local testing, note
-    // that we symlink your habitat-sim data directory (habitat-sim/data) to
-    // /build_js/esp/bindings_js/data. (See "resources" in
-    // src/esp/bindings_js/CMakeLists.txt.)
     let dataUrlBase = "data";
-    preloadFunc(dataUrlBase + "/objects/hand_r_open.glb", true);
-    preloadFunc(dataUrlBase + "/objects/hand_r_open.object_config.json", true);
-    preloadFunc(dataUrlBase + "/objects/hand_r_closed.glb", true);
-    preloadFunc(
-      dataUrlBase + "/objects/hand_r_closed.object_config.json",
-      true
-    );
 
-    preloadFunc(dataUrlBase + "/objects/hand_l_open.glb", true);
-    preloadFunc(dataUrlBase + "/objects/hand_l_open.object_config.json", true);
-    preloadFunc(dataUrlBase + "/objects/hand_l_closed.glb", true);
-    preloadFunc(
-      dataUrlBase + "/objects/hand_l_closed.object_config.json",
-      true
-    );
+    preloadFunc(dataUrlBase + "/stages/clothing_store_optimized.glb");
+    preloadFunc(dataUrlBase + "/stages/clothing_store_optimized.stage_config.json");
+  
+    preloadFunc(dataUrlBase + "/objects/hand_r_open.glb");
+    preloadFunc(dataUrlBase + "/objects/hand_r_open.object_config.json");
+    preloadFunc(dataUrlBase + "/objects/hand_r_closed.glb");
+    preloadFunc(dataUrlBase + "/objects/hand_r_closed.object_config.json");
+
+    preloadFunc(dataUrlBase + "/objects/hand_l_open.glb");
+    preloadFunc(dataUrlBase + "/objects/hand_l_open.object_config.json");
+    preloadFunc(dataUrlBase + "/objects/hand_l_closed.glb");
+    preloadFunc(dataUrlBase + "/objects/hand_l_closed.object_config.json");
   }
 
   display() {
-    this.initSimAgentSensors();
+    this.initSimAndSensors();
     this.initScene();
     this.setUpVR();
+
+    this.headPosesInputElement = document.getElementById("head_poses_input");
   }
 
   setUpVR() {
-    // const button = document.createElement("button");
-    // button.id = BUTTON_ID;
-    // this.canvasElement.after(button);
-    const button = document.getElementById('enter-vr');
-    button.id = BUTTON_ID;
-    this.exitVR();
+    const elem = document.getElementById('enter-vr');
+    elem.style.visibility = "visible";
+    elem.addEventListener("click", this.enterVR.bind(this));
   }
 
-  initSimAgentSensors() {
+  initSimAndSensors() {
     this.config = new Module.SimulatorConfiguration();
     this.config.scene_id = "data/stages/clothing_store_optimized.glb";
     this.config.enablePhysics = false;
@@ -301,29 +283,15 @@ class VRDemo {
     }, 1000.0 / 60);
   }
 
-  // remove the event listener
-  resetButton() {
-    const button = document.getElementById(BUTTON_ID);
-    const newButton = button.cloneNode(true);
-    button.parentNode.replaceChild(newButton, button);
-    return newButton;
-  }
-
   exitVR() {
     if (this.webXRSession !== null) {
       this.webXRSession.end();
     }
-    const button = this.resetButton();
-    button.innerHTML = "Enter VR";
-    button.addEventListener("click", this.enterVR.bind(this));
   }
 
   renderDisplay() {
     if (this.webXRSession !== null) {
       this.webXRSession.requestAnimationFrame(this.drawVRScene.bind(this));
-      const button = this.resetButton();
-      button.innerHTML = "Exit VR";
-      button.addEventListener("click", this.exitVR.bind(this));
     } else {
       window.setTimeout(this.renderDisplay.bind(this), 1000);
     }
@@ -513,9 +481,64 @@ class VRDemo {
     }
 
     this.updateFPS();
+
+    const posAsArray = pointToArray(pose.transform.position).slice(0, -1);
+    const orientationAsArray = pointToArray(pose.transform.orientation);
+    this.tryLogHeadPose(posAsArray, orientationAsArray);
+  }
+
+  tryLogHeadPose(position, orientation) {
+
+    if (!this.headPosesInputElement) {
+      return;
+    }
+
+    const currDate = new Date();
+    const currMs = currDate.getTime();
+
+    const logHeadPosePeriodMs = 1000; // log every 1000 ms
+    if (this.recentLogHeadPoseTimeMs && (currMs - this.recentLogHeadPoseTimeMs) < logHeadPosePeriodMs) {
+      return;
+    }
+
+    if (!this.recentLogHeadPoseTimeMs) {
+      this.recentLogHeadPoseTimeMs = currMs;
+    } else {
+      this.recentLogHeadPoseTimeMs += logHeadPosePeriodMs;
+    }
+
+    this.logHeadPose(position, orientation);
+  }
+
+  logHeadPose(positionFloatArray, orientationFloatArray) {
+
+    const orientationPrecision = 7;
+    const positionPrecision = 3;
+    let s = "{{";
+    for (let i = 0; i < positionFloatArray.length; i++) {
+      const elem = positionFloatArray[i];
+      s += elem.toFixed(positionPrecision);
+      if (i < positionFloatArray.length - 1) {
+        s += ",";
+      }
+    }
+    s += "},{";
+    for (let i = 0; i < orientationFloatArray.length; i++) {
+      const elem = orientationFloatArray[i];
+      s += elem.toFixed(orientationPrecision);
+      if (i < orientationFloatArray.length - 1) {
+        s += ",";
+      }
+    }
+    s += "}},";
+    this.headPosesInputElement.value += s;
   }
 
   updateFPS() {
+    if (!this.fpsElement) {
+      return;
+    }
+
     if (this.currentFramesSkipped != this.skipFrames) {
       this.currentFramesSkipped++;
       return;

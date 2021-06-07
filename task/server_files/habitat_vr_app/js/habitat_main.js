@@ -62,15 +62,6 @@ checkSupport();
 
 
 function doPreloading() {
-  const scene = "data/stages/clothing_store_optimized.glb";
-  let resolvedScene = preload(scene);
-  console.log("resolvedScene = " + resolvedScene);
-
-  const fileNoExtension = scene.substr(0, scene.lastIndexOf("."));
-
-  // also preload stage_config
-  preload(fileNoExtension + ".stage_config.json");
-
   VRDemo.preloadFiles(preload);
 }
 
@@ -99,17 +90,4 @@ Module.onRuntimeInitialized = async function() {
   console.log("onRuntimeInitialized");
   doRun();
 };
-
-
-// createMyModule().then(function(Module) {
-//   // this is reached when everything is ready, and you can call methods on Module
-
-//   console.log("createMyModule Module is ready");
-
-//   console.log("Module.preRun " + Module["preRun"]);
-//   console.log("Module.onRuntimeInitialized " +  Module["onRuntimeInitialized"]);
-
-//   let state = new Module.AgentState();
-//   console.log("state: " + state);
-// });
 
