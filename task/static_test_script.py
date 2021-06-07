@@ -17,9 +17,7 @@ from omegaconf import DictConfig
 from dataclasses import dataclass, field
 from typing import List, Any
 
-# todo: get/use path to this file
-TASK_DIRECTORY = "/data/projects/hab_vr_mephisto/task"  # os.path.join(get_root_dir(), "examples/simple_static_task")
-print("TASK_DIRECTORY: " + TASK_DIRECTORY)
+TASK_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 defaults = [
     {"mephisto/blueprint": BLUEPRINT_TYPE},
