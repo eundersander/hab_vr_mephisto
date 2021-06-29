@@ -4,6 +4,10 @@ This is a simple Habitat VR app that lets a user view our `clothing_store` 3D sc
 
 This is also a proof-of-concept for Mephisto integration. The Habitat VR app is entirely static client-side content (html, js, and data files). As such, the app is integrated into Mephisto here exactly as the existing Mephisto [simple_static_task example](https://github.com/facebookresearch/Mephisto/tree/master/examples/simple_static_task).
 
+# Known Issues
+
+- We are seeing an `alignfault` crash on Quest 2. Desktop browser VR emulation is unaffected. We speculate this is due to a recent Oculus browser update and a previously-hidden memory-alignment issue related to Emscripten and/or Magnum's TinyGLTF importer. We have a workaround for testing on Quest 2: strangely, you need to load the page while tethered to a desktop via ADB debugging (this avoids the crash). For a fix, we have some leads which we'll pursue as this project gets closer to deploying on Quest 2.
+
 # Installation
 
 1. Download and extract [data.zip](https://drive.google.com/file/d/1pwPUOar6ZSIdhVn9QpMH9KNSbQtarRDv/view?usp=sharing) as `task/server_files/habitat_vr_app/data/`.
