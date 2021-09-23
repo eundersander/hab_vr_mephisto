@@ -84,13 +84,20 @@ class VRDemo {
 
     const agentConfigOrig = new Module.AgentConfiguration();
   
+    // Quest 2 is getting viewport of 1440 x 1584 for each eye (why? official specs say 1832 x 1920)
+    // Let's do half-resolution (~55 fps vs ~20 fps for full-resolution)
+    const width = 720
+    const height = 792
+    hfov = 89
+
     const specs = new Module.VectorSensorSpec();
     {
       const spec = new Module.CameraSensorSpec();
       spec.uuid = "left_eye";
       spec.sensorType = Module.SensorType.COLOR;
       spec.sensorSubType = Module.SensorSubType.PINHOLE;
-      spec.resolution = [1024, 1024];
+      spec.resolution = [height, width];
+      spec.hfov = hfov
       specs.push_back(spec);
     }
     {
@@ -98,7 +105,8 @@ class VRDemo {
       spec.uuid = "right_eye";
       spec.sensorType = Module.SensorType.COLOR;
       spec.sensorSubType = Module.SensorSubType.PINHOLE;
-      spec.resolution = [1024, 1024];
+      spec.resolution = [height, width];
+      spec.hfov = hfov
       specs.push_back(spec);
     }
     agentConfigOrig.sensorSpecifications = specs;
@@ -553,7 +561,7 @@ class VRDemo {
       const secondsElapsed = (current - this.lastPaintTime) / 1000;
       this.fps = this.skipFrames / secondsElapsed;
       this.lastPaintTime = current;
-      this.fpsElement.innerHTML = `FPS: ${this.fps.toFixed(2)}`;
+      this.fpsElement.innerHTML += `${this.fps.toFixed(2)}<br>`;
     }
   }
 }
