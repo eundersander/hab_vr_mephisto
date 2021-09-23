@@ -42,7 +42,7 @@ function createMagnumModule(init) {
         //         module.log.innerHTML += Array.prototype.slice.call(arguments).join(' ')
         //             .replace(/[\"&<>]/g, function (a) {
         //                 return { '"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;' }[a];
-        //             }) + '\n';
+        //             }) + '<br>\n';
         //     }
         // },
 
@@ -51,7 +51,7 @@ function createMagnumModule(init) {
         //         module.log.innerHTML += Array.prototype.slice.call(arguments).join(' ')
         //             .replace(/[\"&<>]/g, function (a) {
         //                 return { '"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;' }[a];
-        //             }) + '\n';
+        //             }) + '<br>\n';
         //     }
         // },
 
@@ -60,6 +60,7 @@ function createMagnumModule(init) {
         canvas: offscreen,
         status: document.getElementById('status'),
         statusDescription: document.getElementById('status-description'),
+        // log: document.getEementById('log'),
 
         setStatus: function(message) {
             if(module.status)
