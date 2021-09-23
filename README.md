@@ -6,7 +6,7 @@ This is also a proof-of-concept for Mephisto integration. The Habitat VR app is 
 
 # Known Issues
 
-- We are seeing an `alignfault` crash on Quest 2. Desktop browser VR emulation is unaffected. We speculate this is due to a recent Oculus browser update and a previously-hidden memory-alignment issue related to Emscripten and/or Magnum's TinyGLTF importer. We have a workaround for testing on Quest 2: strangely, you need to load the page while tethered to a desktop via ADB debugging (this avoids the crash). For a fix, we have some leads which we'll pursue as this project gets closer to deploying on Quest 2.
+- We may be doing something wrong in how we handle [IPD](https://support.oculus.com/articles/getting-started/getting-started-with-quest-2/ipd-quest-2/). @BlaiseRitchie reported that her Habitat VR app was unusable on Quest 2 due to vision/IPD problems. A possible source of bugs is that we are constructing our viewport/projection matrices inside Habitat based on eye transformed provided by WebXR, instead of directly using viewport/projection matrices provided by the WebXR API.
 
 # Installation
 

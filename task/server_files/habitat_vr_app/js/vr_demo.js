@@ -84,13 +84,20 @@ class VRDemo {
 
     const agentConfigOrig = new Module.AgentConfiguration();
   
+    // Quest 2 is getting viewport of 1440 x 1584 for each eye (why? official specs say 1832 x 1920)
+    // Let's do half-resolution (~55 fps vs ~20 fps for full-resolution)
+    const width = 720
+    const height = 792
+    const hfov = 89
+
     const specs = new Module.VectorSensorSpec();
     {
       const spec = new Module.CameraSensorSpec();
       spec.uuid = "left_eye";
       spec.sensorType = Module.SensorType.COLOR;
       spec.sensorSubType = Module.SensorSubType.PINHOLE;
-      spec.resolution = [1024, 1024];
+      spec.resolution = [height, width];
+      spec.hfov = hfov
       specs.push_back(spec);
     }
     {
@@ -98,7 +105,8 @@ class VRDemo {
       spec.uuid = "right_eye";
       spec.sensorType = Module.SensorType.COLOR;
       spec.sensorSubType = Module.SensorSubType.PINHOLE;
-      spec.resolution = [1024, 1024];
+      spec.resolution = [height, width];
+      spec.hfov = hfov
       specs.push_back(spec);
     }
     agentConfigOrig.sensorSpecifications = specs;
@@ -361,11 +369,6 @@ class VRDemo {
 
       // 6DoF pose example
       if (inputSource.gripSpace) {
-        const inputPose = frame.getPose(
-          inputSource.gripSpace,
-          this.xrReferenceSpace
-        );
-
         let gp = inputSource.gamepad;
         let buttonStates = [false, false];
         for (let i = 0; i < gp.buttons.length; i++) {
@@ -380,20 +383,34 @@ class VRDemo {
           ? handRecord.objIds[0]
           : handRecord.objIds[1];
 
-        // update hand obj pose
-        let poseTransform = inputPose.transform;
-        const handPos = Module.Vector3.add(
-          new Module.Vector3(
-            ...pointToArray(poseTransform.position).slice(0, -1)
-          ),
-          agentPos
+        const inputPose = frame.getPose(
+          inputSource.gripSpace,
+          this.xrReferenceSpace
         );
+  
+        if (!inputPose) {
+          // hack hide hand by translating far away
+          this.sim.setTranslation(
+            new Module.Vector3(-1000.0, -1000.0, -1000.0),
+            hiddenHandObjId,
+            0
+          );
+        } else {
+          // update hand obj pose
+          let poseTransform = inputPose.transform;
+          const handPos = Module.Vector3.add(
+            new Module.Vector3(
+              ...pointToArray(poseTransform.position).slice(0, -1)
+            ),
+            agentPos
+          );
 
-        let handRot = Module.toQuaternion(
-          pointToArray(poseTransform.orientation)
-        );
-        this.sim.setTranslation(handPos, handObjId, 0);
-        this.sim.setRotation(handRot, handObjId, 0);
+          let handRot = Module.toQuaternion(
+            pointToArray(poseTransform.orientation)
+          );
+          this.sim.setTranslation(handPos, handObjId, 0);
+          this.sim.setRotation(handRot, handObjId, 0);
+        }
 
         // hack hide other hand by translating far away
         this.sim.setTranslation(
@@ -553,7 +570,7 @@ class VRDemo {
       const secondsElapsed = (current - this.lastPaintTime) / 1000;
       this.fps = this.skipFrames / secondsElapsed;
       this.lastPaintTime = current;
-      this.fpsElement.innerHTML = `FPS: ${this.fps.toFixed(2)}`;
+      this.fpsElement.innerHTML += `${this.fps.toFixed(2)}<br>`;
     }
   }
 }

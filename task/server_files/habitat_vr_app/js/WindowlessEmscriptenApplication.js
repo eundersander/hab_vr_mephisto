@@ -37,12 +37,15 @@ function createMagnumModule(init) {
 
         arguments: [],
 
+        // Reference code to print C++ ostreams to html, for easier debuggin on VR headset.
+        // With these commented out, print/printErr go to the browser dev console (default behavior).
+        // See also optional log element in standalone.html
         // printErr: function(_message) {
         //     if(module.log) {
         //         module.log.innerHTML += Array.prototype.slice.call(arguments).join(' ')
         //             .replace(/[\"&<>]/g, function (a) {
         //                 return { '"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;' }[a];
-        //             }) + '\n';
+        //             }) + '<br>\n';
         //     }
         // },
 
@@ -51,7 +54,7 @@ function createMagnumModule(init) {
         //         module.log.innerHTML += Array.prototype.slice.call(arguments).join(' ')
         //             .replace(/[\"&<>]/g, function (a) {
         //                 return { '"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;' }[a];
-        //             }) + '\n';
+        //             }) + '<br>\n';
         //     }
         // },
 
@@ -60,6 +63,7 @@ function createMagnumModule(init) {
         canvas: offscreen,
         status: document.getElementById('status'),
         statusDescription: document.getElementById('status-description'),
+        log: document.getElementById('log'),
 
         setStatus: function(message) {
             if(module.status)
